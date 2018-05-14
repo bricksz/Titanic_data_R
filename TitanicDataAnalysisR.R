@@ -141,3 +141,63 @@ ggplot(data.combined[1:891, ], aes(x= Title, fill = Survived)) +
 
 # distribution of F to M 
 table(data.combined$Sex)
+
+# Viz the 3-way relationship of sex, Pclass, and survival, compare to analysis
+ggplot(data.combined[1:891, ], aes(x = Sex, fill = Survived)) + 
+  geom_bar(width = .5) +
+  facet_wrap(~Pclass) +
+  ggtitle('Pclass') +
+  xlab('Sex') +
+  ylab('Total Count') +
+  labs(fill = 'Survived')
+
+# age distribution
+summary(data.combined$Age)
+# some of the training set is included in the model, so lets only include the test set.
+summary(data.combined[1:891, 'Age'])
+
+# Survival rates broken down by sex, pclass, and age
+ggplot(data.combined[1:891, ], aes(x = Age, fill = Survived)) +
+  facet_wrap(~Sex + Pclass) +
+  geom_bar(width = 1) +
+  xlab('Age') +
+  ylab('Total Count')
+
+# Validate that "Master." is a good proxy for male children.
+boys <- data.combined[which(data.combined$Title == 'Master.') ,]
+summary(boys$Age)
+
+# We know that "Miss." is more complicated, examine further
+misses <- data.combined[which(data.combined$Title == "Miss."), ]
+summary(misses$Age)
+
+ggplot(misses[misses$Survived != 'None', ], aes(x=Age, fill = Survived)) +
+  facet_wrap(~Pclass) +
+  geom_bar(width = 1) +
+  ggtitle("Age for 'Miss.' by Pclass") +
+  xlab('Age') +
+  ylab('Total Count')
+
+# female children have different survival rate
+# examine further
+misses.alone <- misses[which(misses$SibSp == 0 & misses$Parch == 0), ]
+summary(misses.alone$Age)
+length(which(misses.alone$Age <= 14.5))
+
+# Move onto the sibsp var, summarize the var
+summary(data.combined$SibSp)
+
+# Can we treat as a factor?
+length(unique(data.combined$SibSp))
+
+data.combined$SibSp <- as.factor(data.combined$SibSp)
+
+# We believe title is predictive. Viz survival rates by sipbs, pclass and title.
+ggplot(data.combined[1:891, ], aes(x = SibSp, fill = Survived)) +
+  geom_bar(width = 1) + 
+  facet_wrap(~Pclass + Title) +
+  ggtitle('Pclass, Title') +
+  xlab('SibSp') +
+  ylab('Total Count') +
+  ylim(0,300) +
+  labs(fill = 'Survived')
