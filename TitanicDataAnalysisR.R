@@ -5,7 +5,7 @@ train <- read.csv('train.csv'. header = TRUE)
 test <- read.csv('test.csv', header = TRUE)
 
 # Add a 'Survived' variable to the test set to allow for combing data sets
-test.survived <- data.frame(survived = rep('None', nrow(test)), test[,])
+test.survived <- data.frame(Survived = rep('None', nrow(test)), test[,])
 
 # data.frame: add variable called survived
 # rep('None', nrow(test)) : replicate values, repeat the values of 'None',
@@ -102,3 +102,42 @@ mrses[1:5, ]
 males <- data.combined[which(train$Sex == 'male'), ]
 males[1:5, ]
 # most males died, 2 year old with title Master w/ 3 sibling and 1 parent.
+
+# expand upon the relationship between 'Survived' and 'Pclass' by adding the new 'Title' variable
+# to the data set and then explore a potential 3-dimensional relationship.
+
+# Create a utility function to help with title extraction
+extractTitle <- function(Name) {
+  Name <- as.character(Name)
+  
+  if (length(grep('Miss.', Name)) > 0) {
+    return ('Miss.')
+  } else if (length(grep('Master.', Name)) > 0) {
+    return ('Master.')
+  } else if (length(grep('Mrs.', Name)) > 0) {
+    return ('Mrs.')
+  } else if (length(grep('Mr.', Name)) > 0) {
+    return ('Mr.')
+  } else {
+    return ('Other')
+  }
+}
+
+Titles <- NULL
+for (i in 1:nrow(data.combined)) {
+  Titles <- c(Titles, extractTitle(data.combined[i, 'Name']))
+}
+data.combined$Title <- as.factor(Titles)
+
+# since we have only survived labels for the train set, only use the first 891 rows.
+
+ggplot(data.combined[1:891, ], aes(x= Title, fill = Survived)) +
+  geom_bar(width = 0.5) +
+  facet_wrap(~Pclass) +
+  ggtitle('Pclass') +
+  xlab('Title') +
+  ylab('Total Count') +
+  labs(fill = 'Survived')
+
+# distribution of F to M 
+table(data.combined$Sex)
